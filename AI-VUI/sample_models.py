@@ -139,15 +139,19 @@ def final_model(input_dim, filters, kernel_size, conv_stride,
     # Main acoustic input
     input_data = Input(name='the_input', shape=(None, input_dim))
     # TODO: Specify the layers in your network
-    drop_out = Dropout(0.5)(input_data)
+    drop_out_1 = Dropout(0.5)(input_data)
     conv_1d = Conv1D(filters, kernel_size, 
                      strides=conv_stride, 
                      padding=conv_border_mode,
                      activation='relu',
-                     name='conv1d')(drop_out)
-    bidir_rnn = Bidirectional(GRU(units,
+                     name='conv1d')(drop_out_1)
+    bidir_rnn_1 = Bidirectional(GRU(units,
             return_sequences=True, implementation=2, name='rnn'))(conv_1d)
-    time_dense = TimeDistributed(Dense(output_dim))(bidir_rnn)
+    drop_out_2 = Dropout(0.2)(bidir_rnn_1)
+    bidir_rnn_2 = Bidirectional(GRU(units,
+            return_sequences=True, implementation=2, name='rnn'))(drop_out_2)
+    drop_out_3 = Dropout(0.2)(bidir_rnn_2)
+    time_dense = TimeDistributed(Dense(output_dim))(drop_out_3)
     # TODO: Add softmax activation layer
     y_pred = Activation('softmax', name='softmax')(time_dense)
     # Specify the model
